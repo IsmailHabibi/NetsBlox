@@ -62,41 +62,44 @@ paleo._advancedSearch('core', 'Dome C').then(result =>
     seed();
 });
 
+// Ice core metadata
+paleo._metadata = {
+    'dome c': {
+        shortname: 'Dome C',
+        longname: 'Dome Charlie',
+        description: 'The European Project for Ice Coring in Antarctica began drilling in 1996, reaching 3270 meters deep.',
+        latitude: -75.09978,
+        longitude: 123.332196,
+    },
+    'law': {
+        shortname: 'Law',
+        longname: 'Law Dome',
+        description: 'The Law Dome data comes from three ice cores in East Antarctica, drilled from 1987 to 1993.',
+        latitude:  -66.733333,
+        longitude: 112.833333,
+    },
+    'wais': {
+        shortname: 'WAIS',
+        longname: 'West Antarctic Ice Sheet Divide',
+        description: 'The WAIS Divide Ice Core Project ran from 2005 to 2011, drilling 3405 meters deep, 50 meters above the bed of the sheet.',
+        latitude: -79.467472,
+        longitude: -112.086389,
+    },
+    'grip': {
+        shortname: 'GRIP',
+        longname: 'Greenland Ice Core Project',
+        description: 'The Greenland Ice Core Project ran from 1989 to 1995, drilling a 3029 meter ice core to the bed of the Greenland Ice Sheet.',
+        latitude: 72.579,
+        longitude: -37.565333,
+    },
+};
+
 /**
  * Get all valid names of ice cores
  * @returns {Array}
  */
 paleo.cores = function() {
-    return ['Dome C', 'Law', 'WAIS', 'GRIP']; 
-}; 
-
-// Core meta-data
-paleo._longnames = {
-    'Dome C': 'Dome Charlie',
-    'Law': 'Law Dome',
-    'WAIS': 'West Antarctic Ice Sheet Divide',
-    'GRIP': 'Greenland Ice Core Project',
-};
-
-paleo._descriptions = {
-    'Dome C': 'The European Project for Ice Coring in Antarctica began drilling in 1996, reaching 3270 meters deep.',
-    'Law': 'The Law Dome data comes from three ice cores in East Antarctica, drilled from 1987 to 1993.',
-    'WAIS': 'The WAIS Divide Ice Core Project ran from 2005 to 2011, drilling 3405 meters deep, 50 meters above the bed of the sheet.',
-    'GRIP': 'The Greenland Ice Core Project ran from 1989 to 1995, drilling a 3029 meter ice core to the bed of the Greenland Ice Sheet.',
-};
-
-paleo._latitudes = {
-    'Dome C': -75.09978,
-    'Law': -66.733333,
-    'WAIS': -79.467472,
-    'GRIP': 72.579,
-};
-
-paleo._longitudes = {
-    'Dome C': 123.332196,
-    'Law': 112.833333,
-    'WAIS': -112.086389,
-    'GRIP': -37.565333,
+    return Object.keys(paleo._metadata).map(key => paleo._metadata[key].shortname);
 };
 
 /**
@@ -190,19 +193,19 @@ paleo.getColumnData = function(startyear, endyear, datatype, core){
 };
 
 /**
- * Get metadata about a core. Returns full name, description, latitude, longitude, minimum date, maximum data, number of Carbon Dioxide datapoints, and number of Oxygen datapoints.
+ * Get metadata about a core. Returns full name, description, latitude, longitude, minimum year, maximum year, number of Carbon Dioxide datapoints, and number of Oxygen datapoints.
  * @param {String} core Name of core to get metadata of
  */
 paleo.getCoreMetadata = function(core){
+    core = core.toLowerCase();
+
     // Test for valid
-    if(this.cores().indexOf(core) === -1){
-        throw 'Invalid core';
+    if(Object.keys(paleo._metadata).indexOf(core) === -1){
+        return 'Invalid core';
     }
 
-    let longname = this._longnames[core];
-    let description = this._descriptions[core];
-    let lat = this._latitudes[core];
-    let lon = this._longitudes[core];
+    let metadata = paleo._metadata[core];
+    core = metadata.shortname;
 
     return paleo._getAllData('', '', '', core).then(result => {
         let dates = result.map(row => row[0]);
@@ -211,7 +214,7 @@ paleo.getCoreMetadata = function(core){
         let numco2points = result.filter(row => row[2] === 'Carbon Dioxide').length;
         let numo2points = result.length - numco2points;
     
-        return [longname, description, lat, lon, mindate, maxdate, numco2points, numo2points];    
+        return [metadata.longname, metadata.description, metadata.latitude, metadata.longitude, mindate, maxdate, numco2points, numo2points];
     }); 
 };
 

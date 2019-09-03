@@ -50,7 +50,7 @@ function seed() {
 }
 
 // Test for existing data
-paleo._advancedSearch('core', 'Dome C').then(result =>
+paleo._advancedSearch('core', 'VOSTOK').then(result =>
 {
     // Database needs to be set up
     if(result.length === 0){
@@ -61,6 +61,8 @@ paleo._advancedSearch('core', 'Dome C').then(result =>
     paleo._logger.warn('No Paleo Climate RPC data found, attempting to load from composite.csv');
     seed();
 });
+
+//seed();
 
 // Ice core metadata
 paleo._metadata = {
@@ -92,6 +94,13 @@ paleo._metadata = {
         latitude: 72.579,
         longitude: -37.565333,
     },
+    'vostok': {
+        shortname: 'VOSTOK',
+        longname: 'Vostok Ice Core Data for 420,000 Years',
+        description: 'Vostok ice core description.',
+        latitude: 0.000,
+        longitude: 0.000,
+    },
 };
 
 /**
@@ -117,6 +126,24 @@ paleo._shorthand = {
     'oxy': 'Oxygen',
     'carbon dioxide': 'Carbon Dioxide',
     'oxygen': 'Oxygen',
+};
+
+/**
+ * Get name in DB for a user entered core name
+ * @param core Input name of core
+ * @returns {string|string} Name used in database for this core, or null for no core with that name
+ * @private
+ */
+paleo._coreDBName = function(core){
+    core = core.toLowerCase();
+
+    // Test for valid
+    if(Object.keys(paleo._metadata).indexOf(core) === -1){
+        return null;
+    }
+
+    let metadata = paleo._metadata[core];
+    return metadata.shortname;
 };
 
 /**
@@ -163,9 +190,10 @@ paleo._getAllData = function(startyear, endyear, datatype, core){	// blank query
     }
 
     if(core !== ''){
-        // Test for valid
-        if(this.cores().indexOf(core) === -1){
-            throw 'Invalid core';
+        core = paleo._coreDBName(core);
+
+        if(core === null){
+            return 'Invalid core';
         }
 
         fields.push('core');
@@ -197,16 +225,13 @@ paleo.getColumnData = function(startyear, endyear, datatype, core){
  * @param {String} core Name of core to get metadata of
  */
 paleo.getCoreMetadata = function(core){
-    core = core.toLowerCase();
+    core = paleo._coreDBName(core);
 
-    // Test for valid
-    if(Object.keys(paleo._metadata).indexOf(core) === -1){
+    if(core === null){
         return 'Invalid core';
     }
 
-    let metadata = paleo._metadata[core];
-    core = metadata.shortname;
-
+    let metadata = paleo._metadata[core.toLowerCase()];
     return paleo._getAllData('', '', '', core).then(result => {
         let dates = result.map(row => row[0]);
         let mindate = Math.min(...dates);

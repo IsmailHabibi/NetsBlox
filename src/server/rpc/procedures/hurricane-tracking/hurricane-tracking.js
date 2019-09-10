@@ -1,3 +1,12 @@
+/**
+ * The Hurricane Info service allows users to access data for different hurricanes 
+ * 
+ * Supported data types are year, month, day, time, status, latitude, longitude, maximum wind speed, and minimum pressure
+ * 
+ * Hurricanes included are from both the Atlantic and Pacific basins
+ * 
+ * Data is sourced from the National Oceanic and Atmospheric Administration database 
+ */
 const lineReader = require('line-reader');
 const path = require('path');
 
@@ -37,9 +46,9 @@ const hurricaneTracker = {};
 hurricaneTracker.serviceName = 'HurricaneInfo';
 
 /**
- *
+ * This RPC accepts two parameters, year and name, and returns a table with data from the hurricane matching the entered information
  * @param {string} name - name of the hurricane
- * @param {string} year - year that the hurricane occurred in
+ * @param {BoundedNumber<1850,2020>} year - year that the hurricane occurred in
  * @returns {array} table - table with the information for all hurricanes matching the inputted name
  */
 
@@ -59,8 +68,8 @@ hurricaneTracker.getHurricane = function(name, year){
 };
 
 /**
- *
- * @param {string} year - year to display in the table
+ *This RPC returns a list of all hurricanes that took place within the year inputted
+ * @param {BoundedNumber<1850,2020>} year - year to display in the table
  * @returns {array} table - table with the names of all hurricanes within the entered year
  */
 
@@ -72,12 +81,7 @@ hurricaneTracker.getNamesForYear = function(year){
                 parsedTable.push(table[i][0]);
         }
     }
-    if (parsedTable.length === 1) {
-        return 'Invalid Year';
-    }
-    else {
         return parsedTable;
-    }
 };
 /**
  *
@@ -101,9 +105,9 @@ hurricaneTracker.getYearsForName = function(name){
 };
 
 /**
- *
+ * This RPC displays a list of latitudes for a hurricane matching the inputted parameters
  * @param {string} name - name of the hurricane to get the latitude of
- * @param {string} year - year that the hurricane occurred in
+ * @param {BoundedNumber<1850,2020>} year - year that the hurricane occurred in
  * @returns {Array} table - list of all of the latitudes of the hurricane matching the entered parameters
  */
 
@@ -124,9 +128,9 @@ hurricaneTracker.getLatitude = function(name, year){
 };
 
 /**
- *
+ * This RPC displays a list of longitudes for a hurricane matching the inputted parameters
  * @param {string} name - name of the hurricane to get the longitude of
- * @param {string} year - year that the hurricane occurred in
+ * @param {BoundedNumber<1850,2020>} year - year that the hurricane occurred in
  * @returns {Array} table - list of all of the longitudes of the hurricane matching the entered parameters
  */
 
